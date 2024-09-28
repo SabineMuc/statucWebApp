@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Static Web App with Secure REST Call</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .config-section { margin-bottom: 20px; }
+    .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .data-table th, .data-table td { border: 1px solid #ddd; padding: 8px; }
+    .data-table th { background-color: #f4f4f4; }
+  </style>
+</head>
+<body>
+  <h1>API Data Viewer</h1>
+  
+  <!-- Configuration Section -->
+  <div class="config-section">
+    <h2>Configuration</h2>
+    <label for="username">Username:</label>
+    <input type="text" id="username" placeholder="Enter Username"><br><br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="Enter Password"><br><br>
+    <button id="submitConfig">Submit</button>
+  </div>
+
+  <!-- Table to Show API Data -->
+  <h2>Data from API</h2>
+  <table class="data-table" id="dataTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Info</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- API data will populate here -->
+    </tbody>
+  </table>
+
+  <script>
+    document.getElementById('submitConfig').addEventListener('click', function() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      if (!username || !password) {
+        alert('Please enter both username and password.');
+        return;
+      }
+
+      // Encode username in Base64
+      const encodedUsername = btoa(username);
+
+      // Perform API call with encoded username in headers
+      fetch('https://your-api-url/endpoint', {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + password,  // You can change to your token logic
+          'x-custom-header': encodedUsername,  // Username in base64 format
+        }
+      })
+      .then(response => response.json())
+      .then(data => populateTable(data))
+      .catch(error => console.error('Error fetching data:', error));
+    });
+
+    function populateTable(data) {
+      const tableBody = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+      tableBody.innerHTML = '';  // Clear existing table data
+
+      data.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.id}</td>
+          <td>${item.name}</td>
+          <td>${item.info}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+  </script>
+</body>
+</html>
